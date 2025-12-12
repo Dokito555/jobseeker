@@ -9,11 +9,11 @@ type (
 	}
 
 	RegisterUserRequest struct {
-		Email       string   `json:"email" validate:"required"`
-		Password    string   `json:"password" validate:"required"`
-		Name        string   `json:"name" validate:"required"`
-		PhoneNumber string   `json:"phone_number" validate:"required"`
-		Skills      []string `json:"skill" validate:"required"`
+		Email       string `json:"email" validate:"required"`
+		Password    string `json:"password" validate:"required"`
+		Name        string `json:"name" validate:"required"`
+		PhoneNumber string `json:"phone_number" validate:"required"`
+		SkillIds    []int  `json:"skill_ids" validate:"required"`
 	}
 
 	UserIDRequest struct {

@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type (
 	RegisterCompanyRequest struct {
@@ -31,16 +33,17 @@ type (
 
 type (
 	CompanyResponse struct {
-		ID          int    `json:"id"`
-		Email       string `json:"email"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
-		PhoneNumber string `json:"phone_number"`
+		ID           int                         `json:"id"`
+		Email        string                      `json:"email"`
+		Name         string                      `json:"name"`
+		Description  string                      `json:"description"`
+		PhoneNumber  string                      `json:"phone_number"`
+		Address      string                      `json:"column:address"`
+		// JobVacancies []models.JobVacancyResponse `json:"job_vacancies"`
 
-		Token        string `json:"token"`
-		RefreshToken string `json:"refresh_token"`
-
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
+		Token        string    `json:"token"`
+		RefreshToken string    `json:"refresh_token"`
+		CreatedAt    time.Time `json:"created_at"`
+		UpdatedAt    time.Time `json:"updated_at"`
 	}
 )

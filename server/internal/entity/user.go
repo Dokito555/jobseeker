@@ -3,13 +3,14 @@ package entity
 import "time"
 
 type User struct {
-	ID          int    `gorm:"primaryKey"`
+	ID           int       `gorm:"primaryKey;autoIncrement"`
 	Name        string `gorm:"column:name;type:varchar(255)"`
 	Email       string `gorm:"column:email;unique"`
 	Password    string `gorm:"column:password"`
 	PhoneNumber string `gorm:"column:phone_number"`
+	Address      string    `gorm:"column:address"`
 
-	Skills string `gorm:"column:skills"`
+	UserSkills   []UserSkillTag `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 
 	Token        string `gorm:"column:token"`
 	RefreshToken string `gorm:"column:refresh_token"`

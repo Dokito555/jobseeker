@@ -12,6 +12,7 @@ func CompanyToResponse(c *entity.Company) *models.CompanyResponse {
 		Name:         c.Name,
 		Description:  c.Description,
 		PhoneNumber:  c.PhoneNumber,
+		Address:      c.Address,
 		Token:        c.Token,
 		RefreshToken: c.RefreshToken,
 		CreatedAt:    c.CreatedAt,
