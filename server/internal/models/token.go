@@ -12,3 +12,7 @@ type ClaimToken struct {
 type TokenRequest struct {
 	Token string `json:"token" validate:"required"`
 }
+
+type VerifyRequest struct {
+	Token string `json:"token" validate:"required"`
+}

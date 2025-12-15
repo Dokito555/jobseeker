@@ -24,7 +24,7 @@ func NewUserRepository(log *logrus.Logger, db *gorm.DB) *UserRepository {
 
 func (r *UserRepository) FindByID(id int) (*entity.User, error) {
 	var user entity.User
-	err := r.DB.Where("id = ?", id).First(user).Error
+	err := r.DB.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("user not found")
@@ -36,10 +36,10 @@ func (r *UserRepository) FindByID(id int) (*entity.User, error) {
 
 func (r *UserRepository) FindByEmail(email string) (*entity.User, error) {
 	var user entity.User
-	err := r.DB.Where("email = ?", email).First(user).Error
+	err := r.DB.Preload("UserSkills").Preload("UserSkills.SkillTag").Where("email = ?", email).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("user not found")
+			return nil, nil
 		}
 		return nil, err
 	}
@@ -53,4 +53,16 @@ func (r *UserRepository) GetUserWithSkills(id int) (*entity.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *UserRepository) FindByToken(token string) (*entity.User, error) {
+	var user entity.User
+	err := r.DB.Where("token = ?", token).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+	return &user, err
 }

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Dokito555/jobseeker/server/internal/entity"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -46,17 +47,38 @@ func NewDatabase(viper *viper.Viper, log *logrus.Logger) *gorm.DB {
 
 	log.Info("Starting database migration...")
 
-	tables := []interface{}{
-	
-	}
+	// tables := []interface{}{
+	// 	entity.JobVacancy{},
+	// 	entity.Company{},
+	// 	entity.JobVacancySkillTag{},
+	// 	entity.SkillTag{},
+	// 	entity.User{},
+	// 	entity.UserSkillTag{},
+	// }
 
-	for _, table := range tables {
-		log.Info("starting to migrate: %T", table)
-		if err := db.AutoMigrate(table); err != nil {
-			log.Fatalf("failed to migrate %T: %v", table, err)
-			os.Exit(1)
-		}
-		log.Infof("Successfully migrated: %T", table)
+	// for _, table := range tables {
+	// 	log.Info("starting to migrate: %T", table)
+	// 	if err := db.AutoMigrate(table); err != nil {
+	// 		log.Fatalf("failed to migrate %T: %v", table, err)
+	// 		os.Exit(1)
+	// 	}
+	// 	log.Infof("Successfully migrated: %T", table)
+	// }
+
+	err = db.AutoMigrate(
+		&entity.Company{},
+		&entity.SkillTag{},
+		&entity.User{},
+
+		&entity.JobVacancy{},     
+		&entity.UserSkillTag{},
+		
+		&entity.JobVacancySkillTag{},
+		&entity.Chat{},
+	)
+	if err != nil {
+		log.Fatalf("failed to auto-migrate: %v", err)
+		os.Exit(1)
 	}
 
 	log.Info("Database migration completed!")

@@ -3,9 +3,9 @@ package entity
 import "time"
 
 type Chat struct {
-	ID       int    `gorm:"primaryKey"`
-	SenderID int    `gorm:"column:sender_id"`
-	Message  string `gorm:"column:message"`
+	ID        int       `gorm:"primaryKey;column:id"`
+	SenderID  int       `gorm:"column:sender_id"`
+	Message   string    `gorm:"column:message"`
 	CreatedAt time.Time `gorm:"column:created_at"`
 }
 

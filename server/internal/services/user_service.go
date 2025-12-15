@@ -27,13 +27,14 @@ type UserService struct {
 	TokenService *TokenService
 }
 
-func NewUserService(log *logrus.Logger, validate *validator.Validate, config *viper.Viper, db *gorm.DB, r *repositories.UserRepository, tokenService *TokenService) *UserService {
+func NewUserService(log *logrus.Logger, validate *validator.Validate, config *viper.Viper, db *gorm.DB, r *repositories.UserRepository, skillTagRepo *repositories.SkillTagRepository, tokenService *TokenService) *UserService {
 	return &UserService{
 		Log:          log,
 		Validate:     validate,
 		Config:       config,
 		DB:           db,
 		UserRepo:     r,
+		SkillTagRepo: skillTagRepo,
 		TokenService: tokenService,
 	}
 }
@@ -77,6 +78,7 @@ func (s *UserService) RegisterUser(ctx context.Context, req *models.RegisterUser
 		Email:       req.Email,
 		Password:    string(hashedPassword),
 		Name:        req.Name,
+		Address:     req.Address,
 		PhoneNumber: req.PhoneNumber,
 	}
 
@@ -168,4 +170,38 @@ func (s *UserService) Login(ctx context.Context, req *models.LoginUserRequest) (
 	}
 
 	return converter.UserToResponse(user, user.UserSkills), nil
+}
+
+func (s *UserService) Logout(ctx context.Context, token string) error {
+	s.Log.Info("starting Logout function")
+	s.Log.Infof("request received: %+v", token)
+
+	tx := s.DB.WithContext(ctx).Begin()
+	defer tx.Rollback()
+
+	if token == "" {
+		s.Log.Fatal("token is empty")
+		return fmt.Errorf("token is empty")
+	}
+
+	user, err := s.UserRepo.FindByToken(token)
+	if err != nil {
+		s.Log.Fatalf("couldn't find user by token %v", err)
+		return err
+	}
+
+	user.Token = ""
+
+	err = s.UserRepo.Update(s.DB, user)
+	if err != nil {
+		s.Log.Fatalf("couldn't update user token %v", err)
+		return fmt.Errorf("failed to update user token")
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		s.Log.Fatalf("failed to commit transaction: %+v", err)
+		return fmt.Errorf("failed to logout user transaction")
+	}
+
+	return nil
 }

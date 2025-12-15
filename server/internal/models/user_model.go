@@ -13,6 +13,7 @@ type (
 		Password    string `json:"password" validate:"required"`
 		Name        string `json:"name" validate:"required"`
 		PhoneNumber string `json:"phone_number" validate:"required"`
+		Address 	string `json:"address" validate:"required"`
 		SkillIds    []int  `json:"skill_ids" validate:"required"`
 	}
 
