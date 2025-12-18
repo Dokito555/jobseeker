@@ -37,6 +37,8 @@ func (c *UserController) RegisterUser(ctx *gin.Context) {
 		return
 	}
 
+	c.Log.Warnf("register user body: %+v", req)
+
 	err = c.Validate.Struct(req)
 	if err != nil {
 		c.Log.Warnf("invalid request: %+v", err)

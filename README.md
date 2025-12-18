@@ -1,16 +1,27 @@
 # jobseeker
+## how to run
+1. setup PostgreSQL
+2. configure `.env`
+```env
+APP_NAME=jobseeker
+APP_PORT=9001
+APP_SECRET=jobseeker
 
-A new Flutter project.
+LOG_LEVEL=Trace
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_NAME=jobseeker
+DB_USER=postgres
+DB_PASSWORD=postgres123
+```
+3. run backend
+```
+cd server
+air
+```
+4. run app
+pick any device
+```
+flutter run
+```
