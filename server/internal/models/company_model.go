@@ -11,6 +11,7 @@ type (
 		Name        string `json:"name" validate:"required"`
 		Description string `json:"description"`
 		PhoneNumber string `json:"phone_number" validate:"required"`
+		Address     string `json:"address" validate:"required"`
 	}
 
 	LoginCompanyRequest struct {
@@ -33,13 +34,13 @@ type (
 
 type (
 	CompanyResponse struct {
-		ID           int                         `json:"id"`
-		Email        string                      `json:"email"`
-		Name         string                      `json:"name"`
-		Description  string                      `json:"description"`
-		PhoneNumber  string                      `json:"phone_number"`
-		Address      string                      `json:"column:address"`
-		// JobVacancies []models.JobVacancyResponse `json:"job_vacancies"`
+		ID           int      `json:"id"`
+		Email        string   `json:"email"`
+		Name         string   `json:"name"`
+		Description  string   `json:"description"`
+		PhoneNumber  string   `json:"phone_number"`
+		Address      string   `json:"column:address"`
+		JobVacancies []string `json:"job_vacancies,omitempty"`
 
 		Token        string    `json:"token"`
 		RefreshToken string    `json:"refresh_token"`

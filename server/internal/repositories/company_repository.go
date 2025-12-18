@@ -24,7 +24,7 @@ func NewCompanyRepository(log *logrus.Logger, db *gorm.DB) *CompanyRepository {
 
 func (r *CompanyRepository) FindByID(id int) (*entity.Company, error) {
 	var company entity.Company
-	err := r.DB.Where("id = ?", id).First(company).Error
+	err := r.DB.Where("id = ?", id).First(&company).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("company not found")
@@ -34,14 +34,26 @@ func (r *CompanyRepository) FindByID(id int) (*entity.Company, error) {
 	return &company, nil
 }
 
-func (r *CompanyRepository) FinByEmail(email string) (*entity.Company, error) {
-	var company entity.Company
+func (r *CompanyRepository) FindByEmail(email string) (*entity.Company, error) {
+	company := &entity.Company{}
 	err := r.DB.Where("email = ?", email).First(company).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return company, nil
+}
+
+func (r *CompanyRepository) FindByToken(token string) (*entity.Company, error) {
+	c  := &entity.Company{}
+	err := r.DB.Where("token = ?", token).First(c).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("company not found")
 		}
 		return nil, err
 	}
-	return &company, nil
+	return c, err
 }

@@ -28,7 +28,7 @@ var mapTypeToken = map[string]time.Duration{
 	"refresh_token": time.Hour * 72,
 }
 
-func (s *TokenService) GenerateToken(ctx context.Context, userID int, tokenType string, email string, name string) (string, error) {
+func (s *TokenService) GenerateToken(ctx context.Context, userID int, tokenType string, email string, name string, role string) (string, error) {
 	_, exists := mapTypeToken[tokenType]
 	if !exists {
 		return "", fmt.Errorf("invalid token type: %s", tokenType)
@@ -38,6 +38,7 @@ func (s *TokenService) GenerateToken(ctx context.Context, userID int, tokenType 
 		UserID: userID,
 		Email:  email,
 		Name:   name,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    s.Viper.GetString("APP_NAME"),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

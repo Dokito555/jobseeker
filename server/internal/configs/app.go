@@ -25,24 +25,28 @@ func Bootstrap(config *BootstrapConfig) {
 	// setup repo
 	userRepo := repositories.NewUserRepository(config.Log, config.DB)
 	skillTagRepo := repositories.NewSkillTagRepository(config.Log, config.DB)
+	companyRepo := repositories.NewCompanyRepository(config.Log, config.DB)
 
 	// setup services
 	tokenService := services.NewTokenService(config.Log, config.Config)
 	userService := services.NewUserService(config.Log, config.Validate, config.Config, config.DB, userRepo, skillTagRepo, tokenService)
+	companyService := services.NewCompanyService(config.Log, config.Validate, config.Config, config.DB, companyRepo, tokenService)
 
 	// setup controllers
 	healthController := http.NewHealthController(config.Log)
 	userController := http.NewUserController(config.Log, userService, config.Validate)
+	companyController := http.NewCompanyController(config.Log, companyService, config.Validate)
 
 	// setup middleware
 	middleeware := middleware.NewAuth(userService, tokenService)
 
 	// route config
 	routeConfig := route.RouteConfig{
-		App:              config.App,
-		HealthController: healthController,
-		UserController:   userController,
-		AuthMiddleware:   middleeware,
+		App:               config.App,
+		HealthController:  healthController,
+		UserController:    userController,
+		CompanyController: companyController,
+		AuthMiddleware:    middleeware,
 	}
 
 	routeConfig.Setup()

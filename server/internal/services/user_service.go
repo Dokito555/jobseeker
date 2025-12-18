@@ -143,13 +143,13 @@ func (s *UserService) Login(ctx context.Context, req *models.LoginUserRequest) (
 		return nil, fmt.Errorf("failed to compare password")
 	}
 
-	token, err := s.TokenService.GenerateToken(ctx, user.ID, constants.TOKEN_TYPE_TOKEN, user.Email, user.Name)
+	token, err := s.TokenService.GenerateToken(ctx, user.ID, constants.TOKEN_TYPE_TOKEN, user.Email, user.Name, constants.USER_ROLE)
 	if err != nil {
 		s.Log.Fatalf("failed to generate token: %v", err)
 		return nil, fmt.Errorf("failed to generate token")
 	}
 
-	refreshToken, err := s.TokenService.GenerateToken(ctx, user.ID, constants.TOKEN_TYPE_TOKEN, user.Email, user.Name)
+	refreshToken, err := s.TokenService.GenerateToken(ctx, user.ID, constants.TOKEN_TYPE_REFRESH, user.Email, user.Name, constants.USER_ROLE)
 	if err != nil {
 		s.Log.Fatalf("failed to generate token: %v", err)
 		return nil, fmt.Errorf("failed to generate token")
