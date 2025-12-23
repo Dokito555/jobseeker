@@ -10,3 +10,7 @@ const (
 	COMPANY_ROLE = "COMPANY"
 	ADMIN_ROLE = "ADMIN"
 )
+
+const (
+	JOB_STATUS_ACTIVE = "ACTIVE"
+)

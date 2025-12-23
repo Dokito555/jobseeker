@@ -20,7 +20,7 @@ func NewJobVacancySkillTagRepository(log *logrus.Logger, db *gorm.DB) *JobVacanc
 	}
 }
 
-func (r *JobVacancyRepository) FindJobVacancyID(id int) (*[]entity.JobVacancySkillTag, error) {
+func (r *JobVacancySkillTagRepository) FindJobVacancyID(id int) (*[]entity.JobVacancySkillTag, error) {
 	var jvst []entity.JobVacancySkillTag
 	err := r.DB.Preload("SkillTag").
 		Where("job_vacancy_id = ?", id).
@@ -29,4 +29,8 @@ func (r *JobVacancyRepository) FindJobVacancyID(id int) (*[]entity.JobVacancySki
 		return nil, err
 	}
 	return &jvst, nil
+}
+
+func (r *JobVacancySkillTagRepository) CreateBulk(jobSkills []entity.JobVacancySkillTag) error {
+	return r.DB.Create(&jobSkills).Error
 }
