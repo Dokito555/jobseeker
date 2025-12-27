@@ -29,12 +29,14 @@ func (r *JobVacancyRepository) FindByID(id int) (*entity.JobVacancy, error) {
 	return &jv, nil
 }
 
+// TODO: fix this somehow returns empty
 func (r *JobVacancyRepository) FindByCompanyID(companyID int) (*[]entity.JobVacancy, error) {
 	var jvs []entity.JobVacancy
 	err := r.DB.Preload("JobVacancySkills.SkillTag").Where("company_id = ?", companyID).Order("created_at DESC").Error	
 	if err != nil {
 		return nil, err
 	}
+	r.Log.Infof("GET JOBS BY COMPANY: %+v", jvs)
 	return &jvs, err
 }
 
@@ -50,9 +52,20 @@ func (r *JobVacancyRepository) FindAllActive() (*[]entity.JobVacancy, error) {
 func (r *JobVacancyRepository) FindMatchingJobs(userSkillIDs []int, limit int) (*[]entity.JobVacancy, error) {
 	var jvs []entity.JobVacancy
 
-	err := r.DB.Preload("Company").Preload("JobVacancySkills.SkillTag").Joins("JOIN job_vacancy_skill_tags jvst ON jvst.job_vacancy_id = job_vacancies.id").Where("jvst.skill_tag_id IN ? AND job_vacancies.status = ?", userSkillIDs, "ACTIVE").Group("job_vacancies.id").Order("COUNT(jvst.skill_tag_id) DESC, job_vacancies.created_at DESC").Limit(limit).Find(&jvs).Error
+	err := r.DB.
+		Preload("Company").
+		Preload("JobVacancySkills.SkillTag").
+		Joins("JOIN job_vacancy_skill_tags jvst ON jvst.job_vacancy_id = job_vacancies.id").
+		Where("jvst.skill_tag_id IN ? AND job_vacancies.status = ?", userSkillIDs, "aktif").
+		Group("job_vacancies.id").
+		Order("COUNT(jvst.skill_tag_id) DESC, job_vacancies.created_at DESC").
+		Limit(limit).
+		Find(&jvs).Error
+
 	if err != nil {
+		r.Log.Errorf("FindMatchingJobs error: %v", err)
 		return nil, err
 	}
-	return &jvs, err
+
+	return &jvs, nil
 }

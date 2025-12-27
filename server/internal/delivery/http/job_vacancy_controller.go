@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Dokito555/jobseeker/server/internal/delivery/http/middleware"
 	"github.com/Dokito555/jobseeker/server/internal/models"
 	"github.com/Dokito555/jobseeker/server/internal/services"
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,7 @@ func NewJobVacancyService(log *logrus.Logger, service *services.JobVacancyServic
 }
 
 func (c *JobVacancyController) CreateJob(ctx *gin.Context) {
+	auth := middleware.GetProfile(ctx)
 	req := new(models.CreateJobVacancyRequest)
 	err := ctx.ShouldBindJSON(&req)
 	if err != nil {
@@ -38,15 +40,15 @@ func (c *JobVacancyController) CreateJob(ctx *gin.Context) {
 		return
 	}
 
-	auth, exists := ctx.Get("auth")
-	if !exists {
-		c.Log.Warnf("unauthorized: %+v", exists)
-		ctx.JSON(http.StatusUnauthorized, models.BaseResponse[interface{}]{
-			Message: http.StatusUnauthorized,
-			Data:    "unauthorized",
-		})
-		return
-	}
+	// auth, exists := ctx.Get("auth")
+	// if !exists {
+	// 	c.Log.Warnf("unauthorized: %+v", exists)
+	// 	ctx.JSON(http.StatusUnauthorized, models.BaseResponse[interface{}]{
+	// 		Message: http.StatusUnauthorized,
+	// 		Data:    "unauthorized",
+	// 	})
+	// 	return
+	// }
 
 	err = c.Validate.Struct(req)
 	if err != nil {
@@ -59,7 +61,7 @@ func (c *JobVacancyController) CreateJob(ctx *gin.Context) {
 		return
 	}
 
-	rsp, err := c.Service.CreateJob(ctx.Request.Context(), auth, req)
+	rsp, err := c.Service.CreateJob(ctx.Request.Context(), auth.UserID, req)
 	if err != nil {
 		c.Log.Warnf("failed to create job: %+v", err)
 		ctx.JSON(http.StatusInternalServerError, models.BaseResponse[interface{}]{
@@ -106,17 +108,20 @@ func (c *JobVacancyController) GetJobByID(ctx *gin.Context) {
 }
 
 func (c *JobVacancyController) GetJobsByCompany(ctx *gin.Context) {
-	auth, exists := ctx.Get("auth")
-	if !exists {
-		c.Log.Warnf("unauthorized: %+v", exists)
-		ctx.JSON(http.StatusUnauthorized, models.BaseResponse[interface{}]{
-			Message: http.StatusUnauthorized,
-			Data:    "unauthorized",
-		})
-		return
-	}
+	// auth, exists := ctx.Get("auth")
+	// if !exists {
+	// 	c.Log.Warnf("unauthorized: %+v", exists)
+	// 	ctx.JSON(http.StatusUnauthorized, models.BaseResponse[interface{}]{
+	// 		Message: http.StatusUnauthorized,
+	// 		Data:    "unauthorized",
+	// 	})
+	// 	return
+	// }
 
-	rsps, err := c.Service.GetJobsByCompany(ctx.Request.Context(), auth)
+	// TODO: what
+	auth := middleware.GetProfile(ctx)
+
+	rsps, err := c.Service.GetJobsByCompany(ctx.Request.Context(), auth.UserID)
 	if err != nil {
 		c.Log.Warnf("failed to get jobs by company: %+v", err)
 		ctx.JSON(http.StatusInternalServerError, models.BaseResponse[interface{}]{
@@ -151,16 +156,9 @@ func (c *JobVacancyController) GetAllActiveJobs(ctx *gin.Context) {
 	})
 }
 
+// TODO: return empty
 func (c *JobVacancyController) GetRecommendedJobs(ctx *gin.Context) {
-	auth, exists := ctx.Get("auth")
-	if !exists {
-		c.Log.Warnf("unauthorized: %+v", exists)
-		ctx.JSON(http.StatusUnauthorized, models.BaseResponse[interface{}]{
-			Message: http.StatusUnauthorized,
-			Data:    "unauthorized",
-		})
-		return
-	}
+	auth := middleware.GetProfile(ctx)
 
 	limit := 20 
 	if limitParam := ctx.Query("limit"); limitParam != "" {
@@ -169,7 +167,7 @@ func (c *JobVacancyController) GetRecommendedJobs(ctx *gin.Context) {
 		}
 	}
 
-	rsps, err := c.Service.GetRecommendedJobs(ctx.Request.Context(), auth, limit)
+	rsps, err := c.Service.GetRecommendedJobs(ctx.Request.Context(), auth.UserID, limit)
 	if err != nil {
 		c.Log.Warnf("failed to get recommended jobs: %+v", err)
 		ctx.JSON(http.StatusInternalServerError, models.BaseResponse[interface{}]{
@@ -187,13 +185,114 @@ func (c *JobVacancyController) GetRecommendedJobs(ctx *gin.Context) {
 }
 
 func (c *JobVacancyController) UpdateJob(ctx *gin.Context) {
+	auth := middleware.GetProfile(ctx)
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		c.Log.Fatalf("invalid id: %+v", err)
+		ctx.JSON(http.StatusBadRequest, models.BaseResponse[interface{}]{
+			Message: http.StatusBadRequest,
+			Error:   err.Error(),
+			Data:    nil,
+		})
+		return
+	}
 
+	req := new(models.UpdateJobVacancyRequest)
+	err = ctx.ShouldBindJSON(&req)
+	if err != nil {
+		c.Log.Fatalf("failed to bind request to JSON: %+v", err)
+		ctx.JSON(http.StatusBadRequest, models.BaseResponse[interface{}]{
+			Message: http.StatusBadRequest,
+			Error:   err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	err = c.Validate.Struct(req)
+	if err != nil {
+		c.Log.Warnf("invalid request: %+v", err)
+		ctx.JSON(http.StatusBadRequest, models.BaseResponse[interface{}]{
+			Message: http.StatusBadRequest,
+			Error:   err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	rsp, err := c.Service.UpdateJob(ctx.Request.Context(), auth.UserID, id, req)
+	if err != nil {
+		c.Log.Warnf("failed to update job: %+v", err)
+		ctx.JSON(http.StatusInternalServerError, models.BaseResponse[interface{}]{
+			Message: http.StatusInternalServerError,
+			Error:   err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, models.BaseResponse[*models.JobVacancyResponse]{
+		Message: http.StatusCreated,
+		Data:    rsp,
+	})
 }
 
 func (c *JobVacancyController) CloseJob(ctx *gin.Context) {
+	auth := middleware.GetProfile(ctx)
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		c.Log.Fatalf("invalid id: %+v", err)
+		ctx.JSON(http.StatusBadRequest, models.BaseResponse[interface{}]{
+			Message: http.StatusBadRequest,
+			Error:   err.Error(),
+			Data:    nil,
+		})
+		return
+	}
 
+	err = c.Service.CloseJob(ctx.Request.Context(), auth.UserID, id)
+	if err != nil {
+		c.Log.Warnf("failed to close job: %+v", err)
+		ctx.JSON(http.StatusInternalServerError, models.BaseResponse[interface{}]{
+			Message: http.StatusInternalServerError,
+			Error:   err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, models.BaseResponse[string]{
+		Message: http.StatusCreated,
+		Data:    "job closed successfully",
+	})
 }
 
 func (c *JobVacancyController) DeleteJob(ctx *gin.Context) {
+	auth := middleware.GetProfile(ctx)
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		c.Log.Fatalf("invalid id: %+v", err)
+		ctx.JSON(http.StatusBadRequest, models.BaseResponse[interface{}]{
+			Message: http.StatusBadRequest,
+			Error:   err.Error(),
+			Data:    nil,
+		})
+		return
+	}
 
+	err = c.Service.DeleteJob(ctx.Request.Context(), auth.UserID, id)
+	if err != nil {
+		c.Log.Warnf("failed to delete job: %+v", err)
+		ctx.JSON(http.StatusInternalServerError, models.BaseResponse[interface{}]{
+			Message: http.StatusInternalServerError,
+			Error:   err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, models.BaseResponse[string]{
+		Message: http.StatusCreated,
+		Data:    "job deleted successfully",
+	})
 }

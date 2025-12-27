@@ -9,5 +9,5 @@ type JobVacancySkillTag struct {
 }
 
 func (j *JobVacancySkillTag) TableName() string {
-	return "job_vacancies_skill_tags"
+	return "job_vacancy_skill_tags"
 }

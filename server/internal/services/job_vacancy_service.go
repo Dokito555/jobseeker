@@ -163,6 +163,8 @@ func (s *JobVacancyService) GetJobsByCompany(ctx context.Context, companyID int)
 		responses = append(responses, *converter.JobVacancyToResponse(&job))
 	}
 
+	s.Log.Infof("GET JOBS BY COMPANY: %+v", responses)
+
 	return responses, nil
 }
 
@@ -336,6 +338,10 @@ func (s *JobVacancyService) CloseJob(ctx context.Context, companyID, jobID int) 
 		return fmt.Errorf("unauthorized: you can only close your own jobs")
 	}
 
+	// TODO: huh
+	job.Status = constants.JOB_STATUS_CLOSED
+	job.Active = constants.JOB_STATUS_CLOSED
+
 	err = s.JobVacancyRepo.Update(s.DB, job)
 	if err != nil {
 		s.Log.Fatalf("failed to update job to db: %+v", err)
@@ -369,6 +375,11 @@ func (s *JobVacancyService) DeleteJob(ctx context.Context, companyID, jobID int)
 	if job.CompanyID != companyID {
 		s.Log.Fatalf("unauthorized: you can only delete your own jobs")
 		return fmt.Errorf("unauthorized: you can only delete your own jobs")
+	}
+
+	err = s.JobVacancyRepo.Delete(s.DB, job)
+	if err != nil {
+		return err
 	}
 
 	if err := tx.Commit().Error; err != nil {

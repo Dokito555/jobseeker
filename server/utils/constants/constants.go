@@ -13,4 +13,5 @@ const (
 
 const (
 	JOB_STATUS_ACTIVE = "ACTIVE"
+	JOB_STATUS_CLOSED = "CLOSED"
 )
