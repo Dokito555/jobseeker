@@ -18,7 +18,7 @@ type JobVacancyController struct {
 	Validate *validator.Validate
 }
 
-func NewJobVacancyService(log *logrus.Logger, service *services.JobVacancyService, val *validator.Validate) *JobVacancyController {
+func NewJobVacancyController(log *logrus.Logger, service *services.JobVacancyService, val *validator.Validate) *JobVacancyController {
 	return &JobVacancyController{
 		Log: log,
 		Service: service,
@@ -39,16 +39,6 @@ func (c *JobVacancyController) CreateJob(ctx *gin.Context) {
 		})
 		return
 	}
-
-	// auth, exists := ctx.Get("auth")
-	// if !exists {
-	// 	c.Log.Warnf("unauthorized: %+v", exists)
-	// 	ctx.JSON(http.StatusUnauthorized, models.BaseResponse[interface{}]{
-	// 		Message: http.StatusUnauthorized,
-	// 		Data:    "unauthorized",
-	// 	})
-	// 	return
-	// }
 
 	err = c.Validate.Struct(req)
 	if err != nil {
@@ -108,17 +98,6 @@ func (c *JobVacancyController) GetJobByID(ctx *gin.Context) {
 }
 
 func (c *JobVacancyController) GetJobsByCompany(ctx *gin.Context) {
-	// auth, exists := ctx.Get("auth")
-	// if !exists {
-	// 	c.Log.Warnf("unauthorized: %+v", exists)
-	// 	ctx.JSON(http.StatusUnauthorized, models.BaseResponse[interface{}]{
-	// 		Message: http.StatusUnauthorized,
-	// 		Data:    "unauthorized",
-	// 	})
-	// 	return
-	// }
-
-	// TODO: what
 	auth := middleware.GetProfile(ctx)
 
 	rsps, err := c.Service.GetJobsByCompany(ctx.Request.Context(), auth.UserID)

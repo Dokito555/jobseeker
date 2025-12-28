@@ -47,27 +47,27 @@ func (s *JobVacancyService) CreateJob(ctx context.Context, companyID int, req *m
 
 	err := s.Validate.Struct(req)
 	if err != nil {
-		s.Log.Fatalf("invalid request")
+		s.Log.Warnf("invalid request")
 		return nil, fmt.Errorf("invalid request")
 	}
 
 	if req.Position == "" {
-		s.Log.Fatalf("posisiotn is required")
+		s.Log.Warnf("posisiotn is required")
 		return nil, fmt.Errorf("position is required")
 	}
 
 	if req.MinSalary < 0 {
-		s.Log.Fatalf("minimum salary cannot be negative")
+		s.Log.Warnf("minimum salary cannot be negative")
 		return nil, fmt.Errorf("minimum salary cannot be negative")
 	}
 
 	if req.MaxSalary < req.MaxSalary {
-		s.Log.Fatalf("maximum salary must be greater thn minium salary")
+		s.Log.Warnf("maximum salary must be greater thn minium salary")
 		return nil, fmt.Errorf("maximum salary must be greater thn minium salary")
 	}
 
 	if len(req.RequiredSkills) == 0 {
-		s.Log.Fatalf("maximum salary must be greater thn minium salary")
+		s.Log.Warnf("maximum salary must be greater thn minium salary")
 		return nil, fmt.Errorf("at least one required skill is need")
 	}
 

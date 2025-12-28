@@ -6,17 +6,19 @@ import (
 )
 
 type RouteConfig struct {
-	App               *gin.Engine
-	HealthController  *http.HealthController
-	UserController    *http.UserController
-	CompanyController *http.CompanyController
+	App                  *gin.Engine
+	HealthController     *http.HealthController
+	UserController       *http.UserController
+	CompanyController    *http.CompanyController
 	JobVacancyController *http.JobVacancyController
-	AuthMiddleware    gin.HandlerFunc
+	ChatController       *http.ChatController
+	AuthMiddleware       gin.HandlerFunc
 }
 
 func (c *RouteConfig) Setup() {
 	c.SetupPublicRoute()
 	c.SetupAuthRoute()
+	c.SetupChatRoute()
 	c.SetupCompanyRoute()
 }
 
@@ -35,6 +37,24 @@ func (c *RouteConfig) SetupAuthRoute() {
 	authGroup.Use(c.AuthMiddleware)
 	authGroup.DELETE("/logout", c.UserController.LogoutUser)
 	authGroup.GET("/jobs/recommended", c.JobVacancyController.GetRecommendedJobs)
+
+	// chatGroup := c.App.Group("/api/v1/chat")
+	// chatGroup.Use(c.AuthMiddleware)
+	// chatGroup.POST("/:id/send", c.ChatController.SendMessage)
+	// chatGroup.GET("/:id", c.ChatController.GetChatHistory)
+	// chatGroup.GET("/:id/poll", c.ChatController.PollNewMessages)
+	// chatGroup.POST("/:id/read", c.ChatController.MarkAsRead)
+}
+
+func (c *RouteConfig) SetupChatRoute() {
+	chatGroup := c.App.Group("/api/v1/chat")
+	chatGroup.Use(c.AuthMiddleware)
+	{
+		chatGroup.POST("/:id/send", c.ChatController.SendMessage)
+		chatGroup.GET("/:id", c.ChatController.GetChatHistory)
+		chatGroup.GET("/:id/poll", c.ChatController.PollNewMessages)
+		chatGroup.POST("/:id/read", c.ChatController.MarkAsRead)
+	}
 }
 
 func (c *RouteConfig) SetupCompanyRoute() {
