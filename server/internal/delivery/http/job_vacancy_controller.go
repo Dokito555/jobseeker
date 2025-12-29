@@ -98,9 +98,19 @@ func (c *JobVacancyController) GetJobByID(ctx *gin.Context) {
 }
 
 func (c *JobVacancyController) GetJobsByCompany(ctx *gin.Context) {
-	auth := middleware.GetProfile(ctx)
+	// auth := middleware.GetProfile(ctx)
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		c.Log.Fatalf("invalid id: %+v", err)
+		ctx.JSON(http.StatusBadRequest, models.BaseResponse[interface{}]{
+			Message: http.StatusBadRequest,
+			Error:   err.Error(),
+			Data:    nil,
+		})
+		return
+	}
 
-	rsps, err := c.Service.GetJobsByCompany(ctx.Request.Context(), auth.UserID)
+	rsps, err := c.Service.GetJobsByCompany(ctx.Request.Context(), id)
 	if err != nil {
 		c.Log.Warnf("failed to get jobs by company: %+v", err)
 		ctx.JSON(http.StatusInternalServerError, models.BaseResponse[interface{}]{
@@ -220,7 +230,7 @@ func (c *JobVacancyController) CloseJob(ctx *gin.Context) {
 	auth := middleware.GetProfile(ctx)
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		c.Log.Fatalf("invalid id: %+v", err)
+		c.Log.Warnf("invalid id: %+v", err)
 		ctx.JSON(http.StatusBadRequest, models.BaseResponse[interface{}]{
 			Message: http.StatusBadRequest,
 			Error:   err.Error(),

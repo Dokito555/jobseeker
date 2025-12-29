@@ -140,6 +140,7 @@ func (s *JobVacancyService) GetJobByID(ctx context.Context, jobID int) (*models.
 	return converter.JobVacancyToResponse(job), nil
 }
 
+// TODO: returns empty
 func (s *JobVacancyService) GetJobsByCompany(ctx context.Context, companyID int) ([]models.JobVacancyResponse, error) {
 	s.Log.Info("starting Get Job By Company function")
 	s.Log.Infof("request received: %+v", companyID)
@@ -327,14 +328,14 @@ func (s *JobVacancyService) CloseJob(ctx context.Context, companyID, jobID int) 
 	job, err := s.JobVacancyRepo.FindByID(jobID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.Log.Fatalf("job not found: %+v", err)
+			s.Log.Warnf("job not found: %+v", err)
 			return fmt.Errorf("job not found")
 		}
 		return err
 	}
 
 	if job.CompanyID != companyID {
-		s.Log.Fatalf("unauthorized: you can only close your own jobs")
+		s.Log.Warnf("unauthorized: you can only close your own jobs")
 		return fmt.Errorf("unauthorized: you can only close your own jobs")
 	}
 
@@ -344,12 +345,12 @@ func (s *JobVacancyService) CloseJob(ctx context.Context, companyID, jobID int) 
 
 	err = s.JobVacancyRepo.Update(s.DB, job)
 	if err != nil {
-		s.Log.Fatalf("failed to update job to db: %+v", err)
+		s.Log.Warnf("failed to update job to db: %+v", err)
 		return fmt.Errorf("failed to update job to db: %+v", err)
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		s.Log.Fatalf("failed to commit transaction: %+v", err)
+		s.Log.Warnf("failed to commit transaction: %+v", err)
 		return fmt.Errorf("failed Close Job transaction")
 	}
 

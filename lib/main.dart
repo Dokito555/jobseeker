@@ -3,13 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jobseeker/data/source/local/auth_local_datasource.dart';
 import 'package:jobseeker/data/source/local/company_auth_local_datasource.dart';
 import 'package:jobseeker/data/source/remote/company_auth_remote_datasource.dart';
+import 'package:jobseeker/data/source/remote/job_remote_datasource.dart';
 import 'package:jobseeker/data/source/remote/user_auth_remote_datasource.dart';
 import 'package:jobseeker/domain/repositories/company_auth_repository.dart';
+import 'package:jobseeker/domain/repositories/job_repository.dart';
 import 'package:jobseeker/domain/repositories/user_auth_repository.dart';
 import 'package:jobseeker/presentation/auth/auth_bloc.dart';
 import 'package:jobseeker/presentation/auth/auth_event.dart';
 import 'package:jobseeker/presentation/auth/auth_state.dart';
 import 'package:jobseeker/presentation/company_auth/company_auth_bloc.dart';
+import 'package:jobseeker/presentation/company_auth/company_auth_event.dart';
+import 'package:jobseeker/presentation/company_auth/company_auth_state.dart';
+import 'package:jobseeker/presentation/job/job_bloc.dart';
+import 'package:jobseeker/presentation/pages/company_home_page.dart';
 import 'package:jobseeker/presentation/pages/home_page.dart';
 import 'package:jobseeker/presentation/pages/login_page.dart';
 import 'package:jobseeker/presentation/pages/register_page.dart';
@@ -36,6 +42,12 @@ class MyApp extends StatelessWidget {
             localDatasource: CompanyAuthLocalDatasourceImpl()
           ),
         ),
+        RepositoryProvider<JobRepository>(
+          create: (_) => JobRepositoryImpl(
+            remoteDatasource: JobRemoteDatasourceImpl(), 
+            localDatasource: CompanyAuthLocalDatasourceImpl()
+          ),
+        )
       ],
       child: MultiBlocProvider(
         providers: [
@@ -47,6 +59,11 @@ class MyApp extends StatelessWidget {
           BlocProvider<CompanyAuthBloc>(
             create: (context) => CompanyAuthBloc(
               repo: context.read<CompanyAuthRepository>()
+            ),
+          ),
+          BlocProvider<JobBloc>(
+            create: (context) => JobBloc(
+              repository: context.read<JobRepository>()
             ),
           )
         ],
@@ -67,7 +84,9 @@ class _AppViewState extends State<AppView> {
   @override
   void initState() {
     super.initState();
+    // Check both user and company auth status
     context.read<AuthBloc>().add(CheckAuthStatusEvent());
+    context.read<CompanyAuthBloc>().add(CheckCompanyAuthStatusEvent());
   }
 
   @override
@@ -80,15 +99,23 @@ class _AppViewState extends State<AppView> {
         useMaterial3: true,
       ),
       home: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          if (state is AuthAuthenticated) {
-            return const HomePage();
-          }
-          if (state is AuthUnauthenticated) {
-            return const LoginPage();
-          }
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+        builder: (context, userAuthState) {
+          return BlocBuilder<CompanyAuthBloc, CompanyAuthState>(
+            builder: (context, companyAuthState) {
+              if (companyAuthState is CompanyAuthAuthenticated) {
+                return const CompanyHomePage();
+              }
+              if (userAuthState is AuthAuthenticated) {
+                return const HomePage();
+              }
+              if (userAuthState is AuthUnauthenticated || 
+                companyAuthState is CompanyAuthUnauthenticated) {
+                return const LoginPage();
+              }
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            },
           );
         },
       ),

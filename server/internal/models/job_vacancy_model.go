@@ -17,7 +17,7 @@ type (
 		Position       string `json:"position" validate:"required"`
 		Description    string `json:"description" validate:"required"`
 		Location       string `json:"location" validate:"required"`
-		WorkType       string `json:"work_type" validate:"required,oneof=full_time part_time freelance remote"`
+		WorkType       string `json:"work_type" validate:"required"`
 		MinSalary      int64  `json:"min_salary" validate:"required,min=0"`
 		MaxSalary      int64  `json:"max_salary" validate:"required,gtfield=MinSalary"`
 		RequiredSkills []int  `json:"required_skills" validate:"required,min=1"`

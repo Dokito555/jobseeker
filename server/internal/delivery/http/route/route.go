@@ -30,6 +30,7 @@ func (c *RouteConfig) SetupPublicRoute() {
 	c.App.POST("/api/v1/company/login", c.CompanyController.LoginCompany)
 	c.App.GET("/api/v1/jobs/:id", c.JobVacancyController.GetJobByID)
 	c.App.GET("/api/v1/jobs", c.JobVacancyController.GetAllActiveJobs)
+	c.App.GET("/api/v1/jobs/company/:id", c.JobVacancyController.GetJobsByCompany)
 }
 
 func (c *RouteConfig) SetupAuthRoute() {
@@ -62,7 +63,7 @@ func (c *RouteConfig) SetupCompanyRoute() {
 	companyGroup.Use(c.AuthMiddleware)
 	companyGroup.DELETE("/logout", c.CompanyController.LogoutCompany)
 	companyGroup.POST("/jobs", c.JobVacancyController.CreateJob)
-	companyGroup.GET("/jobs", c.JobVacancyController.GetJobsByCompany)
+	// companyGroup.GET("/jobs", c.JobVacancyController.GetJobsByCompany)
 	companyGroup.PUT("/jobs/:id", c.JobVacancyController.UpdateJob)
 	companyGroup.PATCH("/jobs/:id/close", c.JobVacancyController.CloseJob)
 	companyGroup.DELETE("/jobs/:id", c.JobVacancyController.DeleteJob)

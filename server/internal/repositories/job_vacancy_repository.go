@@ -31,13 +31,17 @@ func (r *JobVacancyRepository) FindByID(id int) (*entity.JobVacancy, error) {
 
 // TODO: fix this somehow returns empty
 func (r *JobVacancyRepository) FindByCompanyID(companyID int) (*[]entity.JobVacancy, error) {
-	var jvs []entity.JobVacancy
-	err := r.DB.Preload("JobVacancySkills.SkillTag").Where("company_id = ?", companyID).Order("created_at DESC").Error	
-	if err != nil {
-		return nil, err
-	}
-	r.Log.Infof("GET JOBS BY COMPANY: %+v", jvs)
-	return &jvs, err
+    var jvs []entity.JobVacancy
+    err := r.DB.
+        Preload("JobVacancySkills.SkillTag").
+        Where("company_id = ?", companyID).
+        Order("created_at DESC").
+        Find(&jvs).Error
+    if err != nil {
+        return nil, err
+    }
+    r.Log.Infof("GET JOBS BY COMPANY (%d): found %d", companyID, len(jvs))
+    return &jvs, nil
 }
 
 func (r *JobVacancyRepository) FindAllActive() (*[]entity.JobVacancy, error) {
