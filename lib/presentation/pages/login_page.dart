@@ -5,6 +5,7 @@ import 'package:jobseeker/presentation/auth/auth_bloc.dart';
 import 'package:jobseeker/presentation/auth/auth_event.dart';
 import 'package:jobseeker/presentation/auth/auth_state.dart';
 import 'package:jobseeker/presentation/pages/home_page.dart';
+import 'package:jobseeker/presentation/pages/login_company.dart';
 import 'package:jobseeker/presentation/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -47,21 +48,24 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const HomePage())
+             ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Login successful!'),
+                backgroundColor: Colors.green,
+              ),
             );
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
                 backgroundColor: Colors.red,
-              )
+              ),
             );
           }
         },
         builder: (context, state) {
           final isLoading = state is AuthLoading;
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -69,12 +73,6 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 40),
-                  Icon(
-                    Icons.lock_outline,
-                    size: 80,
-                    color: Theme.of(context).primaryColor,
-                  ),
                   const SizedBox(height: 40),
                   TextFormField(
                     controller: _emailController,
@@ -133,6 +131,19 @@ class _LoginPageState extends State<LoginPage> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text('Login', style: TextStyle(fontSize: 16)),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: isLoading ? null : () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const LoginCompany())
+                    ),
+                    child: isLoading
+                    ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2,),
+                    )
+                    : const Text("Login as Company", style: TextStyle(fontSize: 16),)
                   ),
                   const SizedBox(height: 16),
                   TextButton(

@@ -10,7 +10,7 @@ class UserModel extends Equatable {
   final String name;
   @JsonKey(name: 'phone_number')
   final String phoneNumber;
-  final List<int> skills;
+  final List<String> skills;
   final String token;
   @JsonKey(name: 'refresh_token')
   final String refreshToken;

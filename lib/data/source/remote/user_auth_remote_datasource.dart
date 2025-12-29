@@ -15,6 +15,7 @@ class UserAuthRemoteDatasourceImpl extends UserAuthRemoteDatasource {
   @override
   Future<UserModel> login(UserLoginRequest request) async {
     try {
+
       final body = request.toJson();
       final jsonBody = json.encode(body);
 
@@ -26,7 +27,13 @@ class UserAuthRemoteDatasourceImpl extends UserAuthRemoteDatasource {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return UserModel.fromJson(data['data']);
+         try {
+          final user = UserModel.fromJson(data['data']);
+          return user;
+        } catch (e) {
+          rethrow;
+        }
+        
       } else {
         final errorData  = json.decode(response.body);
         throw Exception(errorData['message'] ?? 'Login Failed');

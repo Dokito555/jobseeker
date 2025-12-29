@@ -39,7 +39,7 @@ type (
 		Name         string   `json:"name"`
 		Description  string   `json:"description"`
 		PhoneNumber  string   `json:"phone_number"`
-		Address      string   `json:"column:address"`
+		Address      string   `json:"address"`
 		JobVacancies []string `json:"job_vacancies,omitempty"`
 
 		Token        string    `json:"token"`

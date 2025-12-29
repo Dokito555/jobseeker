@@ -4,6 +4,7 @@ import 'package:jobseeker/data/model/user_model.dart';
 import 'package:jobseeker/presentation/auth/auth_bloc.dart';
 import 'package:jobseeker/presentation/auth/auth_event.dart';
 import 'package:jobseeker/presentation/auth/auth_state.dart';
+import 'package:jobseeker/presentation/pages/register_company.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -54,8 +55,6 @@ class _RegisterPageState extends State<RegisterPage> {
       final phoneNumber = _phoneController.text.trim();
       final skillsList = _selectedSkills.toList();
 
-      print('Phone: $phoneNumber, Skills: $skillsList');
-
       final request = UserRegisterRequest(
         email: _emailController.text.trim(), 
         password: _passwordController.text, 
@@ -104,12 +103,12 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 20,),
-                  Icon(
-                    Icons.person_add_outlined,
-                    size: 80,
-                    color: Theme.of(context).primaryColor,
-                  ),
+                  // const SizedBox(height: 20,),
+                  // Icon(
+                  //   Icons.person_add_outlined,
+                  //   size: 80,
+                  //   color: Theme.of(context).primaryColor,
+                  // ),
                   const SizedBox(height: 30),
                   TextFormField(
                     controller: _nameController,
@@ -238,6 +237,19 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: CircularProgressIndicator(strokeWidth: 2,),
                     )
                     : const Text("Register", style: TextStyle(fontSize: 16),)
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: isLoading ? null : () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const RegisterCompany())
+                    ),
+                    child: isLoading
+                    ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2,),
+                    )
+                    : const Text("Register as Company", style: TextStyle(fontSize: 16),)
                   ),
                   const SizedBox(height: 16),
                   TextButton(

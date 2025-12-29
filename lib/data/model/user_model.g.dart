@@ -11,9 +11,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
   email: json['email'] as String,
   name: json['name'] as String,
   phoneNumber: json['phone_number'] as String,
-  skills: (json['skills'] as List<dynamic>)
-      .map((e) => (e as num).toInt())
-      .toList(),
+  skills: (json['skills'] as List<dynamic>).map((e) => e as String).toList(),
   token: json['token'] as String,
   refreshToken: json['refresh_token'] as String,
   createdAt: json['created_at'] as String,

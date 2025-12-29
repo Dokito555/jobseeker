@@ -31,10 +31,14 @@ class UserAuthRepositoryImpl extends UserAuthRepository {
 
   @override
   Future<UserModel> login(UserLoginRequest request) async {
-    final user = await remoteDatasource.login(request);
-    await localDatasource.saveToken(user.token);
-    await localDatasource.saveUser(user);
-    return user;
+    try {
+      final user = await remoteDatasource.login(request);
+      await localDatasource.saveToken(user.token);
+      await localDatasource.saveUser(user);
+      return user;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override

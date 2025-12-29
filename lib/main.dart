@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jobseeker/data/source/local/auth_local_datasource.dart';
+import 'package:jobseeker/data/source/local/company_auth_local_datasource.dart';
+import 'package:jobseeker/data/source/remote/company_auth_remote_datasource.dart';
 import 'package:jobseeker/data/source/remote/user_auth_remote_datasource.dart';
+import 'package:jobseeker/domain/repositories/company_auth_repository.dart';
 import 'package:jobseeker/domain/repositories/user_auth_repository.dart';
 import 'package:jobseeker/presentation/auth/auth_bloc.dart';
 import 'package:jobseeker/presentation/auth/auth_event.dart';
 import 'package:jobseeker/presentation/auth/auth_state.dart';
+import 'package:jobseeker/presentation/company_auth/company_auth_bloc.dart';
 import 'package:jobseeker/presentation/pages/home_page.dart';
 import 'package:jobseeker/presentation/pages/login_page.dart';
 import 'package:jobseeker/presentation/pages/register_page.dart';
@@ -26,6 +30,12 @@ class MyApp extends StatelessWidget {
             localDatasource: AuthLocalDatasourceImpl(),
           ),
         ),
+        RepositoryProvider<CompanyAuthRepository>(
+          create: (_) => CompanyAuthRepositoryImpl(
+            remoteDatasource: CompanyAuthRemoteDatasourceImpl(), 
+            localDatasource: CompanyAuthLocalDatasourceImpl()
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -34,6 +44,11 @@ class MyApp extends StatelessWidget {
               repo: context.read<UserAuthRepository>(),
             ),
           ),
+          BlocProvider<CompanyAuthBloc>(
+            create: (context) => CompanyAuthBloc(
+              repo: context.read<CompanyAuthRepository>()
+            ),
+          )
         ],
         child: const AppView(),
       )

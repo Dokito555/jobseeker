@@ -29,6 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await repo.login(event.request);
       emit(AuthAuthenticated(user));
     } catch (e) {
+      print('caught error: $e');
       emit(AuthError(e.toString()));
     }
   }
