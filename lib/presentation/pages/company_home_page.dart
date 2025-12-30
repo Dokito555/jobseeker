@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:jobseeker/data/model/company_model.dart';
 import 'package:jobseeker/presentation/company_auth/company_auth_bloc.dart';
+import 'package:jobseeker/presentation/company_auth/company_auth_event.dart';
 import 'package:jobseeker/presentation/company_auth/company_auth_state.dart';
 import 'package:jobseeker/presentation/job/job_bloc.dart';
 import 'package:jobseeker/presentation/job/job_event.dart';
 import 'package:jobseeker/presentation/job/job_state.dart';
 import 'package:jobseeker/presentation/pages/create_job_page.dart';
 import 'package:jobseeker/presentation/pages/job_detail_page.dart';
+import 'package:intl/intl.dart';
+import 'package:jobseeker/presentation/pages/login_page.dart';
 
 class CompanyHomePage extends StatefulWidget {
   const CompanyHomePage({super.key});
@@ -49,6 +51,30 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
     return formatter.format(amount);
   }
 
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<CompanyAuthBloc>().add(CompanyLogoutEvent());
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,28 +84,44 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              // TODO: Implement logout
-            },
+            onPressed: _showLogoutDialog,
+            tooltip: 'Logout',
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _refreshJobs();
+      body: BlocListener<CompanyAuthBloc, CompanyAuthState>(
+        listener: (context, state) {
+          if (state is CompanyAuthUnauthenticated) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+              (route) => false,
+            );
+          } else if (state is CompanyAuthError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildCompanyInfo(),
-              const SizedBox(height: 24),
-              _buildCreateJobButton(),
-              const SizedBox(height: 24),
-              _buildJobsList(),
-            ],
+        child: RefreshIndicator(
+          onRefresh: () async {
+            _refreshJobs();
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildCompanyInfo(),
+                const SizedBox(height: 24),
+                _buildCreateJobButton(),
+                const SizedBox(height: 24),
+                _buildJobsList(),
+              ],
+            ),
           ),
         ),
       ),

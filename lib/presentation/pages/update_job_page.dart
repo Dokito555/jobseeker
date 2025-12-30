@@ -26,7 +26,6 @@ class _UpdateJobPageState extends State<UpdateJobPage> {
   late String _selectedWorkType;
   final List<int> _selectedSkills = [];
 
-  // TODO: Fetch dari API skills
   final Map<int, String> _availableSkills = {
     1: 'Go',
     2: 'Java',
@@ -44,9 +43,6 @@ class _UpdateJobPageState extends State<UpdateJobPage> {
     _minSalaryController = TextEditingController(text: widget.job.minSalary.toString());
     _maxSalaryController = TextEditingController(text: widget.job.maxSalary.toString());
     _selectedWorkType = widget.job.workType;
-
-    // Pre-select skills based on current job skills
-    // Note: This is a simple mapping, you might need to adjust based on your API
     for (var entry in _availableSkills.entries) {
       if (widget.job.requiredSkill.contains(entry.value)) {
         _selectedSkills.add(entry.key);
@@ -183,9 +179,9 @@ class _UpdateJobPageState extends State<UpdateJobPage> {
                       prefixIcon: Icon(Icons.business_center_outlined),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'remote', child: Text('Remote')),
-                      DropdownMenuItem(value: 'onsite', child: Text('Onsite')),
-                      DropdownMenuItem(value: 'hybrid', child: Text('Hybrid')),
+                      DropdownMenuItem(value: 'REMOTE', child: Text('Remote')),
+                      DropdownMenuItem(value: 'ONSITE', child: Text('Onsite')),
+                      DropdownMenuItem(value: 'HYBRID', child: Text('Hybrid')),
                     ],
                     onChanged: (value) {
                       setState(() {

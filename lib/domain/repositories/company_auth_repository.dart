@@ -31,18 +31,47 @@ class CompanyAuthRepositoryImpl extends CompanyAuthRepository {
 
   @override
   Future<CompanyModel> login(CompanyLoginRequest request) async {
-    final company = await remoteDatasource.login(request);
-    await localDatasource.saveToken(company.token);
-    await localDatasource.saveCompany(company);
-    return company;
+    try {
+      print('companyRepository: Login called');
+      final company = await remoteDatasource.login(request);
+      print('companyRepository: Got company data - ${company.name}');
+      
+      await localDatasource.saveToken(company.token);
+      print('companyRepository: Token saved');
+      
+      await localDatasource.saveCompany(company);
+      print('companyRepository: Company data saved');
+      
+      return company;
+    } catch (e) {
+      print('companyRepository: Login failed - $e');
+      rethrow;
+    }
   }
 
   @override
   Future<String> logout() async {
-    final token = await localDatasource.getToken();
-    final String rsp = token != null ? await remoteDatasource.logout(token) : '';
-    await localDatasource.clearAuth();
-    return rsp;
+    try {
+      final token = await localDatasource.getToken();
+      String message = 'Logged out successfully';
+      if (token != null && token.isNotEmpty) {
+        try {
+          message = await remoteDatasource.logout(token);
+        } catch (e) {
+          print('server logout failed: $e');
+        }
+      }
+      await localDatasource.clearAuth();
+      print('local company auth cleared');
+      return message;
+    } catch (e) {
+      try {
+        await localDatasource.clearAuth();
+      } catch (clearError) {
+        print('failed to clear local company auth: $clearError');
+      }
+      rethrow;
+    }
   }
 
   @override

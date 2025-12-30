@@ -41,14 +41,31 @@ class UserAuthRepositoryImpl extends UserAuthRepository {
     }
   }
 
-  @override
+ @override
   Future<String> logout() async {
-    final token = await localDatasource.getToken();
-    final String rsp = token != null 
-      ? await remoteDatasource.logout(token)
-      : '';
-    await localDatasource.clearAuth();
-    return rsp;
+    try {
+      final token = await localDatasource.getToken();
+      String message = 'Logged out successfully';
+      if (token != null && token.isNotEmpty) {
+        try {
+          message = await remoteDatasource.logout(token);
+        } catch (e) {
+          print('server logout failed: $e');
+        }
+      }
+    
+      await localDatasource.clearAuth();
+      print('local auth cleared');
+      
+      return message;
+    } catch (e) {
+      try {
+        await localDatasource.clearAuth();
+      } catch (clearError) {
+        print('failed to clear local auth: $clearError');
+      }
+      rethrow;
+    }
   }
 
   @override

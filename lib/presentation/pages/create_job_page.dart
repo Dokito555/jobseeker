@@ -21,7 +21,7 @@ class _CreateJobPageState extends State<CreateJobPage> {
   final _minSalaryController = TextEditingController();
   final _maxSalaryController = TextEditingController();
 
-  String _selectedWorkType = 'remote';
+  String _selectedWorkType = 'REMOTE';
   final List<int> _selectedSkills = [];
 
   final Map<int, String> _availableSkills = {

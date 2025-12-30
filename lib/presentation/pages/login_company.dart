@@ -4,7 +4,7 @@ import 'package:jobseeker/data/model/company_model.dart';
 import 'package:jobseeker/presentation/company_auth/company_auth_bloc.dart';
 import 'package:jobseeker/presentation/company_auth/company_auth_event.dart';
 import 'package:jobseeker/presentation/company_auth/company_auth_state.dart';
-import 'package:jobseeker/presentation/pages/home_page.dart';
+import 'package:jobseeker/presentation/pages/company_home_page.dart';
 import 'package:jobseeker/presentation/pages/register_company.dart';
 
 class LoginCompany extends StatefulWidget {
@@ -33,6 +33,7 @@ class _LoginCompanyState extends State<LoginCompany> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
+      
       context.read<CompanyAuthBloc>().add(CompanyLoginEvent(request));
     }
   }
@@ -41,25 +42,33 @@ class _LoginCompanyState extends State<LoginCompany> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login Company"),
+        title: const Text('Company Login'),
         centerTitle: true,
       ),
       body: BlocConsumer<CompanyAuthBloc, CompanyAuthState>(
         listener: (context, state) {
+          print('company Login State Changed: ${state.runtimeType}');
+          
           if (state is CompanyAuthAuthenticated) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Login successful!'),
                 backgroundColor: Colors.green,
+                duration: Duration(seconds: 1),
               ),
             );
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
+            
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const CompanyHomePage()),
+              (route) => false,
+            );
           } else if (state is CompanyAuthError) {
-            print(state.message);
+            print('showing error snackbar: ${state.message}');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
                 backgroundColor: Colors.red,
+                duration: const Duration(seconds: 4),
               ),
             );
           }
@@ -75,26 +84,26 @@ class _LoginCompanyState extends State<LoginCompany> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 40),
-                  Icon(
-                    Icons.business_center,
-                    size: 100,
-                    color: Theme.of(context).primaryColor,
+                  const Icon(
+                    Icons.business,
+                    size: 80,
+                    color: Colors.deepPurple,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   const Text(
                     'Welcome Back!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   const Text(
-                    'Login to your company account',
+                    'Login to manage your job postings',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Colors.grey,
                     ),
                   ),
@@ -103,16 +112,16 @@ class _LoginCompanyState extends State<LoginCompany> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
-                      labelText: 'Email',
+                      labelText: 'Company Email',
                       prefixIcon: Icon(Icons.email_outlined),
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Please enter your email";
+                        return 'Please enter your email';
                       }
                       if (!value.contains('@')) {
-                        return "Please enter a valid email";
+                        return 'Please enter a valid email';
                       }
                       return null;
                     },
@@ -123,7 +132,7 @@ class _LoginCompanyState extends State<LoginCompany> {
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock_outline),
+                      prefixIcon: const Icon(Icons.lock_outlined),
                       suffixIcon: IconButton(
                         icon: Icon(_obscurePassword
                             ? Icons.visibility_outlined
@@ -138,7 +147,7 @@ class _LoginCompanyState extends State<LoginCompany> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Please enter your password";
+                        return 'Please enter your password';
                       }
                       return null;
                     },
@@ -148,44 +157,39 @@ class _LoginCompanyState extends State<LoginCompany> {
                     onPressed: isLoading ? null : _login,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(16),
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
                     ),
                     child: isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Text(
-                            "Login",
+                            'Login as Company',
                             style: TextStyle(fontSize: 16),
                           ),
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: isLoading ? null : () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const RegisterCompany())
-                    ),
-                    child: isLoading
-                    ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2,),
-                    )
-                    : const Text("Register as Company", style: TextStyle(fontSize: 16),)
+                  TextButton(
+                    onPressed: isLoading ? null : () => Navigator.pop(context),
+                    child: const Text('Back to User Login'),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account? "),
-                      TextButton(
-                        onPressed: isLoading
-                            ? null
-                            : () => Navigator.of(context)
-                                .pushReplacement(MaterialPageRoute(builder: (_) => RegisterCompany())),
-                        child: const Text("Register"),
-                      ),
-                    ],
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) => const RegisterCompany()),
+                            );
+                          },
+                    child: const Text("Don't have an account? Register"),
                   ),
                 ],
               ),

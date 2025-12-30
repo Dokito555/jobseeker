@@ -18,7 +18,6 @@ import 'package:jobseeker/presentation/job/job_bloc.dart';
 import 'package:jobseeker/presentation/pages/company_home_page.dart';
 import 'package:jobseeker/presentation/pages/home_page.dart';
 import 'package:jobseeker/presentation/pages/login_page.dart';
-import 'package:jobseeker/presentation/pages/register_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,9 +25,10 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-     return MultiRepositoryProvider(
+    return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<UserAuthRepository>(
           create: (_) => UserAuthRepositoryImpl(
@@ -38,16 +38,16 @@ class MyApp extends StatelessWidget {
         ),
         RepositoryProvider<CompanyAuthRepository>(
           create: (_) => CompanyAuthRepositoryImpl(
-            remoteDatasource: CompanyAuthRemoteDatasourceImpl(), 
-            localDatasource: CompanyAuthLocalDatasourceImpl()
+            remoteDatasource: CompanyAuthRemoteDatasourceImpl(),
+            localDatasource: CompanyAuthLocalDatasourceImpl(),
           ),
         ),
         RepositoryProvider<JobRepository>(
           create: (_) => JobRepositoryImpl(
-            remoteDatasource: JobRemoteDatasourceImpl(), 
-            localDatasource: CompanyAuthLocalDatasourceImpl()
+            remoteDatasource: JobRemoteDatasourceImpl(),
+            localDatasource: CompanyAuthLocalDatasourceImpl(),
           ),
-        )
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -58,17 +58,17 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider<CompanyAuthBloc>(
             create: (context) => CompanyAuthBloc(
-              repo: context.read<CompanyAuthRepository>()
+              repo: context.read<CompanyAuthRepository>(),
             ),
           ),
           BlocProvider<JobBloc>(
             create: (context) => JobBloc(
-              repository: context.read<JobRepository>()
+              repository: context.read<JobRepository>(),
             ),
-          )
+          ),
         ],
         child: const AppView(),
-      )
+      ),
     );
   }
 }
@@ -84,9 +84,10 @@ class _AppViewState extends State<AppView> {
   @override
   void initState() {
     super.initState();
-    // Check both user and company auth status
-    context.read<AuthBloc>().add(CheckAuthStatusEvent());
-    context.read<CompanyAuthBloc>().add(CheckCompanyAuthStatusEvent());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthBloc>().add(CheckAuthStatusEvent());
+      context.read<CompanyAuthBloc>().add(CheckCompanyAuthStatusEvent());
+    });
   }
 
   @override
@@ -98,23 +99,26 @@ class _AppViewState extends State<AppView> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, userAuthState) {
-          return BlocBuilder<CompanyAuthBloc, CompanyAuthState>(
-            builder: (context, companyAuthState) {
+      home: BlocBuilder<CompanyAuthBloc, CompanyAuthState>(
+        builder: (context, companyAuthState) {
+          return BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, userAuthState) {
+              if (companyAuthState is CompanyAuthInitial || 
+                  userAuthState is AuthInitial) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
               if (companyAuthState is CompanyAuthAuthenticated) {
                 return const CompanyHomePage();
               }
+              
               if (userAuthState is AuthAuthenticated) {
                 return const HomePage();
               }
-              if (userAuthState is AuthUnauthenticated || 
-                companyAuthState is CompanyAuthUnauthenticated) {
-                return const LoginPage();
-              }
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
+          
+              return const LoginPage();
             },
           );
         },

@@ -18,8 +18,10 @@ class CompanyAuthBloc extends Bloc<CompanyAuthEvent, CompanyAuthState> {
     try {
       final message = await repo.register(event.request);
       emit(CompanyAuthRegisterSuccess(message));
-    } catch (e) {
-      emit(CompanyAuthError(e.toString()));
+    } catch (e, stackTrace) {
+      print('company register error: $e');
+      print('Stack trace: $stackTrace');
+      emit(CompanyAuthError(_getErrorMessage(e)));
     }
   }
 
@@ -28,8 +30,8 @@ class CompanyAuthBloc extends Bloc<CompanyAuthEvent, CompanyAuthState> {
     try {
       final company = await repo.login(event.request);
       emit(CompanyAuthAuthenticated(company));
-    } catch (e) {
-      emit(CompanyAuthError(e.toString()));
+    } catch (e, stackTrace) {
+      emit(CompanyAuthError(_getErrorMessage(e)));
     }
   }
 
@@ -38,22 +40,62 @@ class CompanyAuthBloc extends Bloc<CompanyAuthEvent, CompanyAuthState> {
     try {
       await repo.logout();
       emit(CompanyAuthUnauthenticated());
-    } catch (e) {
-      emit(CompanyAuthError(e.toString()));
+    } catch (e, stackTrace) {
+      emit(CompanyAuthUnauthenticated());
     }
   }
 
   Future<void> _onCheckAuthStatus(CheckCompanyAuthStatusEvent event, Emitter<CompanyAuthState> emit) async {
-    final isLoggedIn = await repo.isLoggedIn();
-    if (isLoggedIn) {
-      final company = await repo.getCurrentCompany();
-      if (company != null) {
-        emit(CompanyAuthAuthenticated(company));
+    try {
+      final isLoggedIn = await repo.isLoggedIn();
+      if (isLoggedIn) {
+        final company = await repo.getCurrentCompany();
+        if (company != null) {
+          emit(CompanyAuthAuthenticated(company));
+        } else {
+          emit(CompanyAuthUnauthenticated());
+        }
       } else {
         emit(CompanyAuthUnauthenticated());
       }
-    } else {
+    } catch (e, stackTrace) {
       emit(CompanyAuthUnauthenticated());
     }
+  }
+
+  String _getErrorMessage(dynamic error) {
+    final errorString = error.toString();
+    
+    if (errorString.contains('SocketException') || errorString.contains('Failed host lookup')) {
+      return 'No internet connection. Please check your network.';
+    }
+    
+    if (errorString.contains('TimeoutException')) {
+      return 'Connection timeout. Please try again.';
+    }
+    
+    if (errorString.contains('FormatException') || errorString.contains('not a subtype')) {
+      return 'Invalid data format received from server. Please contact support.';
+    }
+    
+    if (errorString.contains('401')) {
+      return 'Invalid email or password.';
+    }
+    
+    if (errorString.contains('404')) {
+      return 'Service not found. Please try again later.';
+    }
+    
+    if (errorString.contains('500')) {
+      return 'Server error. Please try again later.';
+    }
+    
+    if (errorString.startsWith('Exception: ')) {
+      return errorString.substring(11);
+    }
+    
+    return errorString.length > 100 
+        ? 'An error occurred. Please try again.' 
+        : errorString;
   }
 }
