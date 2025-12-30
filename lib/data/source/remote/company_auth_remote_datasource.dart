@@ -63,7 +63,7 @@ class CompanyAuthRemoteDatasourceImpl extends CompanyAuthRemoteDatasource {
         Uri.parse('$baseURL/logout'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          'Authorization': token,
         },
       );
 
