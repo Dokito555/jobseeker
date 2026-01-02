@@ -1,3 +1,5 @@
+// lib/main.dart - Updated with ChatBloc
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jobseeker/data/source/local/auth_local_datasource.dart';
@@ -5,9 +7,11 @@ import 'package:jobseeker/data/source/local/company_auth_local_datasource.dart';
 import 'package:jobseeker/data/source/remote/company_auth_remote_datasource.dart';
 import 'package:jobseeker/data/source/remote/job_remote_datasource.dart';
 import 'package:jobseeker/data/source/remote/user_auth_remote_datasource.dart';
+import 'package:jobseeker/data/source/remote/chat_remote_datasource.dart';
 import 'package:jobseeker/domain/repositories/company_auth_repository.dart';
 import 'package:jobseeker/domain/repositories/job_repository.dart';
 import 'package:jobseeker/domain/repositories/user_auth_repository.dart';
+import 'package:jobseeker/domain/repositories/chat_repository.dart';
 import 'package:jobseeker/presentation/auth/auth_bloc.dart';
 import 'package:jobseeker/presentation/auth/auth_event.dart';
 import 'package:jobseeker/presentation/auth/auth_state.dart';
@@ -15,6 +19,7 @@ import 'package:jobseeker/presentation/company_auth/company_auth_bloc.dart';
 import 'package:jobseeker/presentation/company_auth/company_auth_event.dart';
 import 'package:jobseeker/presentation/company_auth/company_auth_state.dart';
 import 'package:jobseeker/presentation/job/job_bloc.dart';
+import 'package:jobseeker/presentation/chat/chat_bloc.dart';
 import 'package:jobseeker/presentation/pages/company_home_page.dart';
 import 'package:jobseeker/presentation/pages/home_page.dart';
 import 'package:jobseeker/presentation/pages/login_page.dart';
@@ -48,6 +53,13 @@ class MyApp extends StatelessWidget {
             localDatasource: CompanyAuthLocalDatasourceImpl(),
           ),
         ),
+        RepositoryProvider<ChatRepository>(
+          create: (_) => ChatRepositoryImpl(
+            remoteDatasource: ChatRemoteDatasourceImpl(),
+            userLocalDatasource: AuthLocalDatasourceImpl(),
+            companyLocalDatasource: CompanyAuthLocalDatasourceImpl(),
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -64,6 +76,11 @@ class MyApp extends StatelessWidget {
           BlocProvider<JobBloc>(
             create: (context) => JobBloc(
               repository: context.read<JobRepository>(),
+            ),
+          ),
+          BlocProvider<ChatBloc>(
+            create: (context) => ChatBloc(
+              repository: context.read<ChatRepository>(),
             ),
           ),
         ],

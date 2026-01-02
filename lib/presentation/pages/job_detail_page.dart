@@ -5,6 +5,7 @@ import 'package:jobseeker/presentation/job/job_bloc.dart';
 import 'package:jobseeker/presentation/job/job_event.dart';
 import 'package:jobseeker/presentation/job/job_state.dart';
 import 'package:jobseeker/presentation/pages/update_job_page.dart';
+import 'package:jobseeker/presentation/pages/chat_page.dart';
 import 'package:intl/intl.dart';
 
 class JobDetailPage extends StatefulWidget {
@@ -90,6 +91,18 @@ class _JobDetailPageState extends State<JobDetailPage> {
             child: const Text('Close'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _openChat(JobModel job) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChatPage(
+          jobVacancyId: job.id,
+          jobTitle: job.position,
+        ),
       ),
     );
   }
@@ -375,50 +388,83 @@ class _JobDetailPageState extends State<JobDetailPage> {
               ),
             ),
           ),
-          if (widget.isCompany && job.status == 'ACTIVE') ...[
+          
+          // TOMBOL CHAT - Untuk User (bukan company)
+          if (!widget.isCompany) ...[
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => UpdateJobPage(job: job),
-                  ),
-                );
-                if (result == true) {
-                  context.read<JobBloc>().add(GetJobByIdEvent(widget.jobId));
-                }
-              },
-              icon: const Icon(Icons.edit),
-              label: const Text('Update Job'),
+              onPressed: () => _openChat(job),
+              icon: const Icon(Icons.chat_bubble_outline),
+              label: const Text('Chat with Company'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(16),
-                backgroundColor: Colors.blue,
+                backgroundColor: Colors.deepPurple,
                 foregroundColor: Colors.white,
               ),
             ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () => _showCloseConfirmation(job),
-              icon: const Icon(Icons.close),
-              label: const Text('Close Job'),
-              style: OutlinedButton.styleFrom(
+          ],
+          
+          // TOMBOL-TOMBOL UNTUK COMPANY
+          if (widget.isCompany) ...[
+            const SizedBox(height: 24),
+            // Tombol Chat untuk Company
+            ElevatedButton.icon(
+              onPressed: () => _openChat(job),
+              icon: const Icon(Icons.chat_bubble_outline),
+              label: const Text('View Messages'),
+              style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(16),
-                foregroundColor: Colors.orange,
-                side: const BorderSide(color: Colors.orange),
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
               ),
             ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () => _showDeleteConfirmation(job),
-              icon: const Icon(Icons.delete),
-              label: const Text('Delete Job'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
+            
+            // Tombol Update, Close, Delete hanya untuk job ACTIVE
+            if (job.status == 'ACTIVE') ...[
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => UpdateJobPage(job: job),
+                    ),
+                  );
+                  if (result == true) {
+                    context.read<JobBloc>().add(GetJobByIdEvent(widget.jobId));
+                  }
+                },
+                icon: const Icon(Icons.edit),
+                label: const Text('Update Job'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.all(16),
+                  foregroundColor: Colors.blue,
+                  side: const BorderSide(color: Colors.blue),
+                ),
               ),
-            ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => _showCloseConfirmation(job),
+                icon: const Icon(Icons.close),
+                label: const Text('Close Job'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.all(16),
+                  foregroundColor: Colors.orange,
+                  side: const BorderSide(color: Colors.orange),
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => _showDeleteConfirmation(job),
+                icon: const Icon(Icons.delete),
+                label: const Text('Delete Job'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.all(16),
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                ),
+              ),
+            ],
           ],
         ],
       ),
