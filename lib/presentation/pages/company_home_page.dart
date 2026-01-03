@@ -7,6 +7,7 @@ import 'package:jobseeker/presentation/company_auth/company_auth_state.dart';
 import 'package:jobseeker/presentation/job/job_bloc.dart';
 import 'package:jobseeker/presentation/job/job_event.dart';
 import 'package:jobseeker/presentation/job/job_state.dart';
+import 'package:jobseeker/presentation/pages/auth_selection_page.dart';
 import 'package:jobseeker/presentation/pages/create_job_page.dart';
 import 'package:jobseeker/presentation/pages/job_detail_page.dart';
 import 'package:intl/intl.dart';
@@ -93,7 +94,7 @@ class _CompanyHomePageState extends State<CompanyHomePage> {
         listener: (context, state) {
           if (state is CompanyAuthUnauthenticated) {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const LoginPage()),
+              MaterialPageRoute(builder: (_) => const AuthSelectionPage()),
               (route) => false,
             );
           } else if (state is CompanyAuthError) {

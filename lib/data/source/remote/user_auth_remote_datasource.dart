@@ -67,7 +67,7 @@ class UserAuthRemoteDatasourceImpl extends UserAuthRemoteDatasource {
   @override
   Future<String> logout(String token) async {
     try {
-      final response = await http.post(
+      final response = await http.delete(
         Uri.parse('$baseURL/logout'),
         headers: {
           'Content-Type': 'application/json',

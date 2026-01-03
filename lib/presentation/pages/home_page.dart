@@ -10,6 +10,7 @@ import 'package:jobseeker/presentation/job/job_state.dart';
 import 'package:jobseeker/presentation/pages/job_detail_page.dart';
 import 'package:jobseeker/presentation/pages/login_page.dart';
 import 'package:intl/intl.dart';
+import 'package:jobseeker/presentation/pages/auth_selection_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -95,7 +96,7 @@ class _HomePageState extends State<HomePage> {
           if (state is AuthUnauthenticated) {
             // Clear navigation stack and go to login
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const LoginPage()),
+              MaterialPageRoute(builder: (_) => const AuthSelectionPage()),
               (route) => false,
             );
           } else if (state is AuthError) {
