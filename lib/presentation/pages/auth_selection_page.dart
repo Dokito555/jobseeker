@@ -82,7 +82,7 @@ class AuthSelectionPage extends StatelessWidget {
               
               const SizedBox(height: 16),
               
-              // Card UMKM
+              // Card Perusahaan
               _buildRoleCard(
                 context: context,
                 title: 'Saya Perusahaan',
