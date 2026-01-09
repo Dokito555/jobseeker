@@ -296,9 +296,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // Available skills (sesuai backend)
   final Map<int, String> _skills = {
-    1: 'Software Engineering',
-    2: 'Web Development',
-    3: 'Mobile Development',
+    1: 'Memasak',
+    2: 'Housekeeping',
+    3: 'Menjual Produk',
+    4: 'Menjahit',
+    5: 'Menjaga Toko'
   };
 
   final Set<int> _selectedSkills = {};
